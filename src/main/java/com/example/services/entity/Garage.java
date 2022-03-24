@@ -1,5 +1,6 @@
 package com.example.services.entity;
 
+import com.example.services.model.StatusType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,11 +16,10 @@ import javax.persistence.Id;
 @NoArgsConstructor
 public class Garage {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    Long garageId;
+
+    String uuid;
     Vehicle vehicle;
-    String status;
+    StatusType status;
 
 
 }

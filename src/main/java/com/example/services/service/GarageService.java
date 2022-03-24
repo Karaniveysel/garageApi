@@ -8,9 +8,9 @@ import com.example.services.model.GarageDto;
 public  interface GarageService {
 
 
-    Garage park(Vehicle vehicle);
+    String park(Vehicle vehicle);
 
-    Garage leave(Garage dto);
+    void leave(String uuid);
 
     String status();
 }
