@@ -12,8 +12,8 @@ import javax.validation.constraints.NotNull;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Vehicle extends Garage{
-        @NotEmpty(message = "type bos birakilamaz.")
+public class Vehicle {
+       // @NotEmpty(message = "type bos birakilamaz.")
         String type;
         @NotEmpty(message = "color bos birakilamaz.")
         String color;

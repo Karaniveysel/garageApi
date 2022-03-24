@@ -12,24 +12,30 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static com.example.services.util.core.concurrentFullMap;
+import static com.example.services.util.coreUtil.garageHashMap;
 
 @Service
 public class GaraceServiceImpl implements GarageService {
 
     protected final static int capacity=10;
-    ConcurrentHashMap<Integer, Garage> conHashMap=concurrentFullMap(capacity);
+    ConcurrentHashMap<Integer, Garage> conHashMap=garageHashMap(capacity);
     boolean[] parkUsed = new boolean[capacity];
+    protected final String returnValue="";
 
     @Override
-    public Garage park(Vehicle vehicle) {
+    public String park(Vehicle vehicle) {
+        int width=VehicleType.valueOf(vehicle.getType().toLowerCase(Locale.ROOT)).getWidth();
+//        int park= (int) conHashMap.values().stream().filter(x->x.getStatus().equals(StatusType.ALLOCATED)).count();
+//        if(width>park)
         Garage garage = new Garage();
         vehicle.setSlots(VehicleType.valueOf(vehicle.getType().toLowerCase(Locale.ROOT)).getWidth());
         garage.setVehicle(vehicle);
-        garage.setStatus(StatusType.ALLOCATED.toString());
-        garage.setGarageId(1L);
+        garage.setStatus(StatusType.ALLOCATED);
+        garage.setUuid(UUID.randomUUID().toString().replace("-", ""));
         addPark(garage);
-        return garage;
+        final String uuid = UUID.randomUUID().toString().replace("-", "");
+        System.out.println("uuid = " + uuid);
+        return StatusType.ALLOCATED.strValue()+" "+VehicleType.valueOf(vehicle.getType().toLowerCase(Locale.ROOT)).getWidth()+" slot";
     }
 
     public void addPark(Garage garage){
@@ -63,7 +69,6 @@ public class GaraceServiceImpl implements GarageService {
 
             }
 
-
                 // While veya for kurulaması gerekiyor.
                 //Alt tarafa buna göre düzenleme yap
 //                while(){
@@ -81,25 +86,43 @@ public class GaraceServiceImpl implements GarageService {
 
         }
     }
-    public void garageControl(Vehicle vehicle){
-        VehicleType.valueOf(vehicle.getType()).getWidth();
-        for (int i=1; i<conHashMap.size(); i++){
-
-        }
-
-    }
 
     @Override
-    public Garage leave(Garage dto) {
-        return null;
+    public void leave(String uuid) {
+        conHashMap.values().stream().filter(x->x.getStatus().equals(StatusType.ALLOCATED) && x.getUuid().equals(uuid)).forEach(x->{
+            x.setStatus(StatusType.AVAILABLE);
+            x.setVehicle(null);
+            x.setUuid(null);
+        });
+
     }
 
     @Override
     public String status() {
-        return "Status:" + System.lineSeparator() +
-                conHashMap.values().stream().map(x->x.toString())
-                        .collect(Collectors.joining(System.lineSeparator()));
+        StringBuffer strValue=new StringBuffer("");
+        conHashMap.values().stream().filter(x->x.getStatus().equals(StatusType.ALLOCATED)).forEach(x->{
+
+                strValue.append(x.getVehicle().getPlate()).append(" ")
+                        .append(x.getVehicle().getColor()).append(" ")
+                        .append(conHashMap.entrySet().stream().filter(y->y.getValue().getStatus().equals(StatusType.ALLOCATED) && y.getValue().getUuid().equals(x.getUuid())).
+                                map(y->y.getKey()).collect(Collectors.toList()).toString())
+                       ;
+                break;
+                });
+
+        return "Status:" + System.lineSeparator() +strValue;
+//                conHashMap.values().stream().map(x->x.toString())
+//                        .collect(Collectors.joining(System.lineSeparator()));
     }
+//    public c garageControl(Vehicle vehicle){
+//        VehicleType.valueOf(vehicle.getType()).getWidth();
+//        for (int i=1; i<conHashMap.size(); i++){
+//
+//        }
+//
+//    }
+
+
 //
 //    public String park2(Vehicle vehicle) {
 //        if (vehicle.getSize() > GARAGE_CAPACITY) {
