@@ -2,7 +2,6 @@ package com.example.services.serviceImpl;
 
 import com.example.services.entity.Garage;
 import com.example.services.entity.Vehicle;
-import com.example.services.model.GarageDto;
 import com.example.services.model.StatusType;
 import com.example.services.model.VehicleType;
 import com.example.services.service.GarageService;

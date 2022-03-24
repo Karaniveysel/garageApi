@@ -24,8 +24,6 @@ public class GarageController {
     @PostMapping("/park")
     public ResponseEntity<String> park(@Valid @RequestBody Vehicle vehicle){
         log.debug("REST request to get getType : {}", vehicle.getType());
-        //return garageService.includePark(garage);
-
             return new ResponseEntity<>(garageService.park(vehicle), HttpStatus.CREATED);
 
     }
@@ -41,7 +39,7 @@ public class GarageController {
 
     @PostMapping("/status")
     public ResponseEntity status(){
-        log.info("Garage Durum Kontrolü");
+        log.info("REST request to Garage Status Check...");
         return new ResponseEntity<>(garageService.status(), HttpStatus.OK);
 
     }

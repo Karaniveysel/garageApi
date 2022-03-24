@@ -10,7 +10,7 @@ public class GarageApp {
 	private static final Logger log = LoggerFactory.getLogger(GarageApp.class);
 
 	public static void main(String[] args) {
-		log.info("Garage Uygulaması Başlıyor...");
+		log.info("Garage Aplication Starting...");
 		SpringApplication.run(GarageApp.class, args);
 	}
 
