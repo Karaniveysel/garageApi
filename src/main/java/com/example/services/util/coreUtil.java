@@ -9,7 +9,7 @@ public class coreUtil {
     public static ConcurrentHashMap<Integer, Garage>  garageHashMap(int limit){
         Garage garage=null;
         ConcurrentHashMap<Integer, Garage> map=new ConcurrentHashMap<>();
-        for (int i=0;i<limit;i++){
+        for (int i=1;i<limit+1;i++){
             garage=new Garage();
             garage.setStatus(StatusType.AVAILABLE);
             map.put(i,garage);

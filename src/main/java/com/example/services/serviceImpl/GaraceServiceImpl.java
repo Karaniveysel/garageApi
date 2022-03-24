@@ -2,7 +2,6 @@ package com.example.services.serviceImpl;
 
 import com.example.services.entity.Garage;
 import com.example.services.entity.Vehicle;
-import com.example.services.model.GarageDto;
 import com.example.services.model.StatusType;
 import com.example.services.model.VehicleType;
 import com.example.services.service.GarageService;
@@ -19,77 +18,67 @@ public class GaraceServiceImpl implements GarageService {
 
     protected final static int capacity=10;
     ConcurrentHashMap<Integer, Garage> conHashMap=garageHashMap(capacity);
-    boolean[] parkUsed = new boolean[capacity];
-    protected final String returnValue="";
 
     @Override
     public String park(Vehicle vehicle) {
         int width=VehicleType.valueOf(vehicle.getType().toLowerCase(Locale.ROOT)).getWidth();
-//        int park= (int) conHashMap.values().stream().filter(x->x.getStatus().equals(StatusType.ALLOCATED)).count();
-//        if(width>park)
+
+        return addCarToPark(vehicle);
+    }
+
+    public String addCarToPark(Vehicle vehicle) {
+        int sayac = 0;
+        String strValue = "";
+        String strUUID = UUID.randomUUID().toString().replace("-", "");
         Garage garage = new Garage();
         vehicle.setSlots(VehicleType.valueOf(vehicle.getType().toLowerCase(Locale.ROOT)).getWidth());
         garage.setVehicle(vehicle);
-        garage.setStatus(StatusType.ALLOCATED);
-        garage.setUuid(UUID.randomUUID().toString().replace("-", ""));
-        addPark(garage);
-        final String uuid = UUID.randomUUID().toString().replace("-", "");
-        System.out.println("uuid = " + uuid);
-        return StatusType.ALLOCATED.strValue()+" "+VehicleType.valueOf(vehicle.getType().toLowerCase(Locale.ROOT)).getWidth()+" slot";
-    }
-
-    public void addPark(Garage garage){
-        int sayac=0;
-        for (int i=0; i< capacity; i++) {
-            if (parkUsed[i]==false) {
-//                if (garage.getVehicle().getSlots() == 1) {
-//                        conHashMap.put(i, garage);
-//                        parkUsed[i] = true;
-//                }  else
-                //&& garage.getVehicle().getSlots() > 1
-
-                // ilk slot 1 kontrol et
-                // sonra slot 4 lü olanları
-                if (sayac == 0 ) {
-                    for (int j = 1; j < garage.getVehicle().getSlots(); j++) {
-                        if (parkUsed[i] != parkUsed[i + j] || i + garage.getVehicle().getSlots() > capacity) {
-                            sayac = 0;
-                            break;
-                        }
-                        sayac++;
-                    }
-                    if(sayac>0 || garage.getVehicle().getSlots()==1){
-                        for (int l = i; l < i+garage.getVehicle().getSlots(); l++) {
-                            conHashMap.put(l, garage);
-                            parkUsed[l] = true;
-                        }
-                        break;
-                    }
+        for (int i = 1; i < capacity + 1; i++) {
+            if (conHashMap.get(i).getStatus().equals(StatusType.AVAILABLE) ){
+                if (i + garage.getVehicle().getSlots()  > capacity) {
+                    strValue = "Garage is full.";
+                    break;
                 }
+                    if (sayac == 0) {
+                        for (int j = 1; j < garage.getVehicle().getSlots() + 1; j++) {
+                            if (conHashMap.get(i).getStatus().equals(conHashMap.get(i + j).getStatus()) || i + garage.getVehicle().getSlots()> capacity) {
+                                    sayac = 0;
+                                    break;
+                                 }
+                                sayac++;
+                            if (sayac > 0 || garage.getVehicle().getSlots() == 1) {
+                                for (int l = i; l <= i + garage.getVehicle().getSlots(); l++) {
+                                    garage = new Garage();
+                                    vehicle.setSlots(VehicleType.valueOf(vehicle.getType().toLowerCase(Locale.ROOT)).getWidth());
+                                    garage.setVehicle(vehicle);
+                                    garage.setUuid(strUUID);
+                                    if(i==1 && l==i+garage.getVehicle().getSlots())
+                                        break;
+                                    if(l==i){
+                                        garage.setStatus(i==1?StatusType.ALLOCATED:StatusType.LEFT);
+                                    }else{
+                                        garage.setStatus(StatusType.ALLOCATED);
+                                    }
+                                    conHashMap.put(l, garage);
 
-            }
+                                }
+                            }
+                        }
+                        strValue = StatusType.ALLOCATED.strValue() + " " + VehicleType.valueOf(vehicle.getType().toLowerCase(Locale.ROOT)).getWidth() + " slot";
+                        break;
 
-                // While veya for kurulaması gerekiyor.
-                //Alt tarafa buna göre düzenleme yap
-//                while(){
-//                    conHashMap.put(i, garage);
-//                    parkUsed[i] = true;
-//                }
-//                if (sayac > 0) {
-//                    conHashMap.put(i, garage);
-//                    parkUsed[i] = true;
-//                }else{
-//                    conHashMap.put(i, garage);
-//                    parkUsed[i] = true;
-//                    break;
-//                }
 
+
+                    }
+
+                }
         }
+        return strValue;
     }
 
     @Override
     public void leave(String uuid) {
-        conHashMap.values().stream().filter(x->x.getStatus().equals(StatusType.ALLOCATED) && x.getUuid().equals(uuid)).forEach(x->{
+        conHashMap.values().stream().filter(x->(x.getStatus().equals(StatusType.ALLOCATED) ||x.getStatus().equals(StatusType.LEFT)) && x.getUuid().equals(uuid)).forEach(x->{
             x.setStatus(StatusType.AVAILABLE);
             x.setVehicle(null);
             x.setUuid(null);
@@ -100,87 +89,20 @@ public class GaraceServiceImpl implements GarageService {
     @Override
     public String status() {
         StringBuffer strValue=new StringBuffer("");
-        conHashMap.values().stream().filter(x->x.getStatus().equals(StatusType.ALLOCATED)).forEach(x->{
-
-                strValue.append(x.getVehicle().getPlate()).append(" ")
-                        .append(x.getVehicle().getColor()).append(" ")
-                        .append(conHashMap.entrySet().stream().filter(y->y.getValue().getStatus().equals(StatusType.ALLOCATED) && y.getValue().getUuid().equals(x.getUuid())).
-                                map(y->y.getKey()).collect(Collectors.toList()).toString())
-                       ;
-                break;
-                });
-
-        return "Status:" + System.lineSeparator() +strValue;
-//                conHashMap.values().stream().map(x->x.toString())
-//                        .collect(Collectors.joining(System.lineSeparator()));
+        String uuid="";
+        strValue.append("Status:").append(System.lineSeparator());
+        for (Garage garage:conHashMap.values()) {
+            if(garage.getStatus().equals(StatusType.ALLOCATED) && !uuid.equals(garage.getUuid())){
+            strValue.append(garage.getVehicle().getPlate()).append(" ")
+                    .append(garage.getVehicle().getColor()).append(" ")
+                    .append(conHashMap.entrySet().stream().filter(y->y.getValue().getStatus()
+                                    .equals(StatusType.ALLOCATED) && y.getValue().getUuid().equals(garage.getUuid()))
+                                    .map(y->y.getKey()).collect(Collectors.toList()).toString())
+                    .append(System.lineSeparator());
+             uuid=garage.getUuid();
+             }
+        }
+        return strValue.toString();
     }
-//    public c garageControl(Vehicle vehicle){
-//        VehicleType.valueOf(vehicle.getType()).getWidth();
-//        for (int i=1; i<conHashMap.size(); i++){
-//
-//        }
-//
-//    }
 
-
-//
-//    public String park2(Vehicle vehicle) {
-//        if (vehicle.getSize() > GARAGE_CAPACITY) {
-//            return "Vehicle does not fit in this garage.";
-//        }
-//
-//        for (int i = 1; i < GARAGE_CAPACITY + 1; i++) {
-//            if (isParkingAvailableForVehicleStartingFromIndex(vehicle, i)) {
-//                return parkToSlotStartingFrom(vehicle, i);
-//            }
-//        }
-//
-//        return "Garage is full.";
-//    }
-//
-//    private boolean isParkingAvailableForVehicleStartingFromIndex2(Vehicle vehicle, int i) {
-//        if (!parkingLotUsed[i - 1] && !parkingLotUsed[i]) {
-//            for (int j = 1; j < vehicle.getSize() + 1; j++) {
-//                if (i + j < GARAGE_CAPACITY + 2) {
-//                    if (parkingLotUsed[i + j]) {
-//                        return false;
-//                    }
-//                } else {
-//                    return false;
-//                }
-//            }
-//            return true;
-//        } else {
-//            return false;
-//        }
-//    }
-//
-//    private String parkToSlotStartingFrom(Vehicle vehicle, int index) {
-//        vehicle.setParkingIndexStart(index);
-//        vehicleMap.put(ticketIndex++, vehicle);
-//        for (int i = index; i < index + vehicle.getSize(); i++) {
-//            parkingLotUsed[i] = true;
-//        }
-//        return "Allocated " + vehicle.getSize() + (vehicle.getSize() == 1 ? " slot." : " slots.");
-//    }
-//
-//    public void leave2(int ticketId) {
-//        Vehicle parkedVehicle = vehicleMap.get(ticketId);
-//        if (parkedVehicle != null) {
-//            for (int i = parkedVehicle.getParkingIndexStart(); i < parkedVehicle.getParkingIndexStart() + parkedVehicle.getSize(); i++) {
-//                parkingLotUsed[i] = false;
-//            }
-//            vehicleMap.remove(ticketId);
-//        } else {
-//            throw new RuntimeException("No matching ticket exists with id: " + ticketId);
-//        }
-//    }
-//
-//    public String status2() {
-//        return "Status:" + System.lineSeparator() +
-//                vehicleMap.values().stream()
-//                        .sorted()
-//                        .map(Object::toString)
-//                        .collect(Collectors.joining(System.lineSeparator()));
-//    }
 }

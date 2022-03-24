@@ -15,8 +15,6 @@ import javax.persistence.Id;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Garage {
-
-
     String uuid;
     Vehicle vehicle;
     StatusType status;

@@ -13,11 +13,11 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Vehicle {
-       // @NotEmpty(message = "type bos birakilamaz.")
+        @NotEmpty(message = "Type cannot be empty or null")
         String type;
-        @NotEmpty(message = "color bos birakilamaz.")
+        @NotEmpty(message = "Color cannot be empty or null")
         String color;
-        @NotEmpty(message = "plate bos birakilamaz.")
+        @NotEmpty(message = "Plate cannot be empty or null")
         String plate;
         int slots;
 
