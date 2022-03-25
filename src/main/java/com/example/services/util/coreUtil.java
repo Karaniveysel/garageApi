@@ -1,7 +1,7 @@
 package com.example.services.util;
 
 import com.example.services.entity.Garage;
-import com.example.services.model.StatusType;
+import com.example.services.enums.StatusType;
 
 import java.util.concurrent.ConcurrentHashMap;
 

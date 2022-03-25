@@ -2,9 +2,11 @@ package com.example.services.serviceImpl;
 
 import com.example.services.entity.Garage;
 import com.example.services.entity.Vehicle;
-import com.example.services.model.StatusType;
-import com.example.services.model.VehicleType;
+import com.example.services.enums.StatusType;
+import com.example.services.enums.VehicleType;
 import com.example.services.service.GarageService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -15,21 +17,21 @@ import static com.example.services.util.coreUtil.garageHashMap;
 
 @Service
 public class GaraceServiceImpl implements GarageService {
+    private static final Logger log = LogManager.getLogger(GaraceServiceImpl.class);
 
     protected final static int capacity=10;
     ConcurrentHashMap<Integer, Garage> conHashMap=garageHashMap(capacity);
+    protected int sequence=0;
 
     @Override
     public String park(Vehicle vehicle) {
-        int width=VehicleType.valueOf(vehicle.getType().toLowerCase(Locale.ROOT)).getWidth();
-
         return addCarToPark(vehicle);
     }
 
     public String addCarToPark(Vehicle vehicle) {
-        int sayac = 0;
+        int count = 0;
         String strValue = "";
-        String strUUID = UUID.randomUUID().toString().replace("-", "");
+        //String strUUID = UUID.randomUUID().toString().replace("-", "");
         Garage garage = new Garage();
         vehicle.setSlots(VehicleType.valueOf(vehicle.getType().toLowerCase(Locale.ROOT)).getWidth());
         garage.setVehicle(vehicle);
@@ -39,19 +41,21 @@ public class GaraceServiceImpl implements GarageService {
                     strValue = "Garage is full.";
                     break;
                 }
-                    if (sayac == 0) {
+                    if (count == 0) {
                         for (int j = 1; j < garage.getVehicle().getSlots() + 1; j++) {
-                            if (conHashMap.get(i).getStatus().equals(conHashMap.get(i + j).getStatus()) || i + garage.getVehicle().getSlots()> capacity) {
-                                    sayac = 0;
+                            if (!conHashMap.get(i).getStatus().equals(conHashMap.get(i + j).getStatus()) || i + garage.getVehicle().getSlots()> capacity) {
+                                    count = 0;
                                     break;
                                  }
-                                sayac++;
-                            if (sayac > 0 || garage.getVehicle().getSlots() == 1) {
+                            count++;
+                            if (count > 0 || garage.getVehicle().getSlots() == 1) {
+                                sequence++;
                                 for (int l = i; l <= i + garage.getVehicle().getSlots(); l++) {
                                     garage = new Garage();
                                     vehicle.setSlots(VehicleType.valueOf(vehicle.getType().toLowerCase(Locale.ROOT)).getWidth());
                                     garage.setVehicle(vehicle);
-                                    garage.setUuid(strUUID);
+                                    //garage.setUuid(strUUID);
+                                    garage.setUuid(sequence+"");
                                     if(i==1 && l==i+garage.getVehicle().getSlots())
                                         break;
                                     if(l==i){
@@ -60,11 +64,11 @@ public class GaraceServiceImpl implements GarageService {
                                         garage.setStatus(StatusType.ALLOCATED);
                                     }
                                     conHashMap.put(l, garage);
-
                                 }
+                                strValue = StatusType.ALLOCATED.strValue() + " " + VehicleType.valueOf(vehicle.getType().toLowerCase(Locale.ROOT)).getWidth() + " slot";
+                                break;
                             }
                         }
-                        strValue = StatusType.ALLOCATED.strValue() + " " + VehicleType.valueOf(vehicle.getType().toLowerCase(Locale.ROOT)).getWidth() + " slot";
                         break;
 
 
@@ -78,11 +82,17 @@ public class GaraceServiceImpl implements GarageService {
 
     @Override
     public void leave(String uuid) {
-        conHashMap.values().stream().filter(x->(x.getStatus().equals(StatusType.ALLOCATED) ||x.getStatus().equals(StatusType.LEFT)) && x.getUuid().equals(uuid)).forEach(x->{
-            x.setStatus(StatusType.AVAILABLE);
-            x.setVehicle(null);
-            x.setUuid(null);
-        });
+        try {
+            conHashMap.values().stream().filter(x->(x.getStatus().equals(StatusType.ALLOCATED) ||x.getStatus().equals(StatusType.LEFT)) && x.getUuid().equals(uuid)).forEach(x->{
+                x.setStatus(StatusType.AVAILABLE);
+                x.setVehicle(null);
+                x.setUuid(null);
+            });
+            sequence--;
+        }catch(Exception e) {
+            log.debug(e.getMessage());
+
+        }
 
     }
 
