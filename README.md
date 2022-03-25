@@ -43,5 +43,5 @@ return: <br/>
   81-VKA-2021 white [8, 9]<br/>
 
 
-You can use Postman to target the REST APIs. The Postman collection file is available in the src/main/resources directory.
+You can use posman to use existing APIs.
 
