@@ -48,7 +48,7 @@ public class GarageController {
      * @returnthe ResponseEntity with status 200 (OK) and Remove vehicle mapping
      * @throws Exception
      */
-    @GetMapping ("/leave/{uuid}")
+    @GetMapping ("/leave/{id}")
     public ResponseEntity leave(@PathVariable String id){
         log.debug("REST request to get getId : {}", id);
         if(StringUtils.isEmpty(id))
