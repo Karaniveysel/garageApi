@@ -1,4 +1,4 @@
-package com.example.services.excepiton;
+package com.example.services.exception;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

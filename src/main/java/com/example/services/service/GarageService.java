@@ -2,7 +2,7 @@ package com.example.services.service;
 
 
 import com.example.services.entity.Vehicle;
-import com.example.services.excepiton.ResourceException;
+import com.example.services.exception.ResourceException;
 
 public  interface GarageService {
 

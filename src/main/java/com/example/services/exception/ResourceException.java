@@ -1,4 +1,4 @@
-package com.example.services.excepiton;
+package com.example.services.exception;
 
 import org.springframework.http.HttpStatus;
 

@@ -2,7 +2,7 @@ package com.example.services.controller;
 
 import com.example.services.entity.Vehicle;
 import com.example.services.enums.VehicleType;
-import com.example.services.excepiton.ResourceException;
+import com.example.services.exception.ResourceException;
 import com.example.services.service.GarageService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
